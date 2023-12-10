@@ -1,33 +1,38 @@
 import streamlit as st
-import anthropic
+import tempfile
+import requests
 
 with st.sidebar:
-    anthropic_api_key = st.text_input("Anthropic API Key", key="file_qa_api_key", type="password")
-    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/pages/1_File_Q%26A.py)"
-    "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
+    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+    "[Don't have an OpenAI API key? Get one](https://platform.openai.com/account/api-keys)"
 
-st.title("📝 File Q&A with Anthropic")
-uploaded_file = st.file_uploader("Upload an article", type=("txt", "md"))
+st.title("File Q&A")
+uploaded_file = st.file_uploader("Upload a document", type=("pdf")) # for now just supports pdf
 question = st.text_input(
-    "Ask something about the article",
+    "Ask something about the uploaded document",
     placeholder="Can you give me a short summary?",
     disabled=not uploaded_file,
 )
 
-if uploaded_file and question and not anthropic_api_key:
-    st.info("Please add your Anthropic API key to continue.")
+if uploaded_file and question and not openai_api_key:
+    st.info("Please add your OpenAI API key to continue.")
 
-if uploaded_file and question and anthropic_api_key:
-    article = uploaded_file.read().decode()
-    prompt = f"""{anthropic.HUMAN_PROMPT} Here's an article:\n\n<article>
-    {article}\n\n</article>\n\n{question}{anthropic.AI_PROMPT}"""
+llm_endpoint = "http://localhost:8000/doc_prompt"
 
-    client = anthropic.Client(api_key=anthropic_api_key)
-    response = client.completions.create(
-        prompt=prompt,
-        stop_sequences=[anthropic.HUMAN_PROMPT],
-        model="claude-v1", #"claude-2" for Claude 2 model
-        max_tokens_to_sample=100,
-    )
-    st.write("### Answer")
-    st.write(response.completion)
+
+if uploaded_file and question and openai_api_key:
+    # Call a function here that reads and returns a vector store or similar path
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(uploaded_file.getvalue())
+        tmp_file_path = tmp_file.name
+
+    # Call one endpoint with path here
+    response = requests.post(llm_endpoint, json={"prompt": question, "path": tmp_file_path})
+
+    if response.status_code == 200:
+        msg = response.json().get("result")
+    else:
+        st.error(f"Error communicating with LLM. Status code: {response.status_code}")
+        msg = 'error'
+
+    st.chat_message("assistant", avatar='frontend/assets/AIhead.jpeg').write(msg)
