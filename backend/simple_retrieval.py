@@ -29,7 +29,7 @@ def get_vector_db_one_document(path):
         embedding=embeddings,
         persist_directory="db"
     )
-    vectordb.persist() # This stores he db in the specified folder
+    vectordb.persist() # This stores the db in the specified folder
     return vectordb
 
 

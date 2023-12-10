@@ -1,7 +1,3 @@
-import openai
-import os
-from dotenv import load_dotenv, find_dotenv
-
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
@@ -9,13 +5,9 @@ from langchain.memory import ConversationBufferWindowMemory, ConversationBufferM
 from langchain.chains import ConversationChain
 
 
-# Load environment variable from .env file, needs api-key for LLM and logging
-load_dotenv(find_dotenv())
-openai.api_key = os.getenv('OPENAI_API_KEY')
-
 
 class ChatBot:
-    def __init__(self, llm_model: str = 'gpt-3.5-turbo', memory: bool=True):
+    def __init__(self, llm_model: str = 'gpt-3.5-turbo', memory: bool = True):
         super().__init__()
 
         self.llm = ChatOpenAI(temperature=0.5, model=llm_model)
@@ -26,15 +18,6 @@ class ChatBot:
     def init_chain(self, include_memory: bool):
 
         if include_memory:
-            prompt = ChatPromptTemplate.from_messages(
-                [
-                    (
-                        "system",
-                        "You're a very knowledgeable helper, that should help employees at LEGO. "
-                        "Start all your answers, with Dear Lego Employee."
-                    ),
-                ]
-            )
             self.llm_chain = ConversationChain(
                 llm=self.llm,
                 memory=ConversationBufferWindowMemory(k=5),
@@ -58,3 +41,4 @@ class ChatBot:
 
     def llm_chat_chain(self, input_prompt):
         return self.llm_chain.run(input_prompt)
+
