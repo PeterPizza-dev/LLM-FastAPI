@@ -2,4 +2,4 @@
 backend/db
 backend/wandb
 db
-.idea
+.idea/
