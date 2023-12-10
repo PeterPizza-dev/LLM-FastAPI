@@ -7,6 +7,7 @@ from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
+from langchain.callbacks import wandb_tracing_enabled
 
 def ask_qa(question, doc_path):
     embeddings = OpenAIEmbeddings()
@@ -32,11 +33,11 @@ def ask_qa(question, doc_path):
     Question: {question}
     Helpful Answer:"""
     QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
-
-    qa = RetrievalQA.from_chain_type(
-        llm=ChatOpenAI(temperature=0.5,model='gpt-3.5-turbo'),
-        chain_type="stuff",
-        retriever=vectordb.as_retriever(search_type="similarity"),
-        chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
-    )
+    with wandb_tracing_enabled():
+        qa = RetrievalQA.from_chain_type(
+            llm=ChatOpenAI(temperature=0.5,model='gpt-3.5-turbo'),
+            chain_type="stuff",
+            retriever=vectordb.as_retriever(search_type="similarity"),
+            chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
+        )
     return qa.run(question)

@@ -12,6 +12,9 @@ from backend.simple_retrieval import ask_qa
 
 load_dotenv(find_dotenv())
 openai.api_key = os.getenv('OPENAI_API_KEY')
+os.environ['WANDB_API_KEY'] = os.getenv('WANDB_API_KEY')
+os.environ["LANGCHAIN_WANDB_TRACING"] = "true"
+os.environ["WANDB_PROJECT"] = "langchain-tracing"
 
 # Initialise app
 app = FastAPI()

@@ -3,7 +3,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferWindowMemory, ConversationBufferMemory
 from langchain.chains import ConversationChain
-
+from langchain.callbacks import wandb_tracing_enabled
 
 
 class ChatBot:
@@ -40,5 +40,11 @@ class ChatBot:
             )
 
     def llm_chat_chain(self, input_prompt):
-        return self.llm_chain.run(input_prompt)
+        with wandb_tracing_enabled():
+            response = self.llm_chain.run(input_prompt)
+        return response
 
+# main
+if __name__ == "__main__":
+    cbb = ChatBot()
+    cbb.llm_chat_chain(input_prompt='What would you like to do?')
