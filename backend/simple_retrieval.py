@@ -1,24 +1,19 @@
+import argparse
+
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
-import openai
-import os
-from dotenv import load_dotenv, find_dotenv
 from langchain.chat_models import ChatOpenAI
+from langchain.prompts import PromptTemplate
 
-# Load environment variable from .env file, needs api-key for LLM and logging
-load_dotenv(find_dotenv())
-openai.api_key = os.getenv('OPENAI_API_KEY')
-embeddings = OpenAIEmbeddings()
-
-
-def get_vector_db_one_document(path):
-    loader = PyPDFLoader(path)
+def ask_qa(question, doc_path):
+    embeddings = OpenAIEmbeddings()
+    loader = PyPDFLoader(doc_path)
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=100,
+        chunk_size=400,
         chunk_overlap=20)
 
     texts = splitter.split_documents(
@@ -27,18 +22,21 @@ def get_vector_db_one_document(path):
     vectordb = Chroma.from_documents(
         documents=texts,
         embedding=embeddings,
-        persist_directory="db"
     )
-    vectordb.persist() # This stores the db in the specified folder
-    return vectordb
 
+    template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, 
+    just say that you don't know, don't try to make up an answer. 
+    Use three sentences maximum. Keep the answer as concise as possible. 
+    Always say "thanks for asking!" at the end of the answer. 
+    {context}
+    Question: {question}
+    Helpful Answer:"""
+    QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
 
-def ask_qa(question, doc_path):
-    vectordb = get_vector_db_one_document(doc_path)
     qa = RetrievalQA.from_chain_type(
-        llm=ChatOpenAI(temperature=0.5,
-                    model='gpt-3.5-turbo'),
+        llm=ChatOpenAI(temperature=0.5,model='gpt-3.5-turbo'),
         chain_type="stuff",
-        retriever=vectordb.as_retriever()
+        retriever=vectordb.as_retriever(search_type="similarity"),
+        chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
     )
     return qa.run(question)
