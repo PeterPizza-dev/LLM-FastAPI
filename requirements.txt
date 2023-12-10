@@ -9,3 +9,7 @@ requests
 streamlit
 wandb
 uvicorn
+chromadb
+# maybe
+textstat
+spacy

@@ -7,12 +7,13 @@ from langchain.callbacks import wandb_tracing_enabled
 
 
 class ChatBot:
-    def __init__(self, llm_model: str = 'gpt-3.5-turbo', memory: bool = True):
+    def __init__(self, llm_model: str = 'gpt-3.5-turbo', memory: bool = True, enable_logging: bool = False):
         super().__init__()
 
         self.llm = ChatOpenAI(temperature=0.5, model=llm_model)
         self.conversation_buffer = memory
         self.init_chain(memory)
+        self.enable_logging = enable_logging
 
 
     def init_chain(self, include_memory: bool):
@@ -40,7 +41,10 @@ class ChatBot:
             )
 
     def llm_chat_chain(self, input_prompt):
-        with wandb_tracing_enabled():
+        if self.enable_logging:
+            with wandb_tracing_enabled():
+                response = self.llm_chain.run(input_prompt)
+        else:
             response = self.llm_chain.run(input_prompt)
         return response
 
