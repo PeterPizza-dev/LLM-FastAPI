@@ -1,3 +1,4 @@
 .env
 backend/db
 backend/wandb
+db
