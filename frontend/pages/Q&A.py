@@ -2,10 +2,6 @@ import streamlit as st
 import tempfile
 import requests
 
-with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
-    "[Don't have an OpenAI API key? Get one](https://platform.openai.com/account/api-keys)"
-
 st.title("File Q&A")
 uploaded_file = st.file_uploader("Upload a document", type=("pdf")) # for now just supports pdf
 question = st.text_input(
@@ -14,13 +10,11 @@ question = st.text_input(
     disabled=not uploaded_file,
 )
 
-if uploaded_file and question and not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.")
 
 llm_endpoint = "http://localhost:8000/doc_prompt"
 
 
-if uploaded_file and question and openai_api_key:
+if uploaded_file and question:
     # Call a function here that reads and returns a vector store or similar path
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
         tmp_file.write(uploaded_file.getvalue())

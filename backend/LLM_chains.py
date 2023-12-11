@@ -15,9 +15,7 @@ class ChatBot:
         self.init_chain(memory)
         self.enable_logging = enable_logging
 
-
     def init_chain(self, include_memory: bool):
-
         if include_memory:
             self.llm_chain = ConversationChain(
                 llm=self.llm,
@@ -47,8 +45,3 @@ class ChatBot:
         else:
             response = self.llm_chain.run(input_prompt)
         return response
-
-# main
-if __name__ == "__main__":
-    cbb = ChatBot()
-    cbb.llm_chat_chain(input_prompt='What would you like to do?')

@@ -37,7 +37,7 @@ def ask_qa(question, doc_path, enable_logging: bool = False):
     if enable_logging:
         with wandb_tracing_enabled():
             qa = RetrievalQA.from_chain_type(
-                llm=ChatOpenAI(temperature=0.5,model='gpt-3.5-turbo'),
+                llm=ChatOpenAI(temperature=0.5, model='gpt-3.5-turbo'),
                 chain_type="stuff",
                 retriever=vectordb.as_retriever(search_type="similarity"),
                 chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}

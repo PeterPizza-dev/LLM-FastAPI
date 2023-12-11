@@ -1,27 +1,44 @@
-import logging
 from fastapi import FastAPI, Request
-import sys
-
-import openai
+import logging
 import os
 from dotenv import load_dotenv, find_dotenv
 from backend.data_validation import Output, InputData, InputDataWPdf
 from backend.LLM_chains import ChatBot
 from backend.simple_retrieval import ask_qa
+import sys
+logger = logging.getLogger(__name__)
 
 
 load_dotenv(find_dotenv())
-openai.api_key = os.getenv('OPENAI_API_KEY')
-os.environ['WANDB_API_KEY'] = os.getenv('WANDB_API_KEY')
-os.environ["LANGCHAIN_WANDB_TRACING"] = "true"
-os.environ["WANDB_PROJECT"] = "langchain-tracing"
+log = False  # Setup logging, currently logging times out.
+openai_api_key = True
+
+
+# Check API key exits in .env file else kill app
+try:
+    os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
+except:
+    logger.info("Please provide valid OpenAI API key in .env and relaunch app")
+    sys.exit(1)
+
+
+if log:
+    # If logging check valid api key
+    try:
+        os.environ['WANDB_API_KEY'] = os.getenv('WANDB_API_KEY')
+    except:
+        logger.info("Please provide valid WANDB API key in .env and relaunch app")
+        sys.exit(1)
+
+    os.environ["LANGCHAIN_WANDB_TRACING"] = "true"
+    os.environ["WANDB_PROJECT"] = "langchain-tracing"
 
 # Initialise app
 app = FastAPI()
 
 
 # Initialise chains
-bot = ChatBot()
+bot = ChatBot(enable_logging=log)
 
 
 @app.post("/api_key")
@@ -38,7 +55,7 @@ def root():
 def doc_prompt(request: Request, input_data: InputDataWPdf):
     prompt = input_data.prompt
     input_path = input_data.path
-    response = ask_qa(prompt, input_path)
+    response = ask_qa(prompt, input_path, enable_logging=log)
     return Output(result=response)
 
 

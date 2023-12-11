@@ -2,12 +2,6 @@ import requests
 import streamlit as st
 import os
 
-with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
-    "[Don't have an OpenAI API key? Get one](https://platform.openai.com/account/api-keys)"
-    # set os .env variable first if needed
-    os.environ['OPENAI_API_KEY'] = openai_api_key
-
 
 # Streamlit app
 st.title("Lego case interview - LLM")
@@ -22,9 +16,6 @@ for msg in st.session_state.messages:
 llm_endpoint = "http://localhost:8000/generate"
 
 if prompt := st.chat_input():
-    if not openai_api_key:
-        st.info("Please add your OpenAI API key to continue.")
-        st.stop()
 
     # We could do som authorisation to our backend here
     st.session_state.messages.append({"role": "user", "content": prompt})
