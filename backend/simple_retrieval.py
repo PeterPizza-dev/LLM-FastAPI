@@ -1,5 +1,3 @@
-import argparse
-
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -10,12 +8,12 @@ from langchain.prompts import PromptTemplate
 from langchain.callbacks import wandb_tracing_enabled
 
 
-def ask_qa(question, doc_path, enable_logging: bool = False):
+def ask_qa(question: str, doc_path: str, enable_logging: bool = False):
     embeddings = OpenAIEmbeddings()
     loader = PyPDFLoader(doc_path)
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=400,
+        chunk_size=1000,
         chunk_overlap=20)
 
     texts = splitter.split_documents(

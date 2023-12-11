@@ -38,7 +38,7 @@ class ChatBot:
                 memory=ConversationBufferMemory()
             )
 
-    def llm_chat_chain(self, input_prompt):
+    def llm_chat_chain(self, input_prompt: str):
         if self.enable_logging:
             with wandb_tracing_enabled():
                 response = self.llm_chain.run(input_prompt)

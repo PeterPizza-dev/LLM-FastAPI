@@ -15,13 +15,11 @@ llm_endpoint = "http://localhost:8000/doc_prompt"
 
 
 if uploaded_file and question:
-    # Call a function here that reads and returns a vector store or similar path
     with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
         tmp_file.write(uploaded_file.getvalue())
         tmp_file_path = tmp_file.name
-
-    # Call one endpoint with path here
-    response = requests.post(llm_endpoint, json={"prompt": question, "path": tmp_file_path})
+        # Call one endpoint with path here
+        response = requests.post(llm_endpoint, json={"prompt": question, "path": tmp_file_path})
 
     if response.status_code == 200:
         msg = response.json().get("result")

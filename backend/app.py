@@ -11,8 +11,6 @@ logger = logging.getLogger(__name__)
 
 load_dotenv(find_dotenv())
 log = False  # Setup logging, currently logging times out.
-openai_api_key = True
-
 
 # Check API key exits in .env file else kill app
 try:
@@ -39,11 +37,6 @@ app = FastAPI()
 
 # Initialise chains
 bot = ChatBot(enable_logging=log)
-
-
-@app.post("/api_key")
-def api_key_missing(request: Request):
-    return api_key_missing
 
 
 @app.get("/")
